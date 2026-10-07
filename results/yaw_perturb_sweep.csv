@@ -1,0 +1,10 @@
+yaw_deg,data_root,classes,min_points,max_occluded,max_truncated,n_frames,n_objects,inside_fov_pct,px_shift_mean,out_of_box_pct_all,n_objects_<10m,out_of_box_pct_<10m,n_objects_10-20m,out_of_box_pct_10-20m,n_objects_20-30m,out_of_box_pct_20-30m,n_objects_>=30m,out_of_box_pct_>=30m
+-3.0,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.731,41.588,51.312,7,12.14,16,31.256,11,57.56,13,91.803
+-2.0,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.74,27.713,33.472,7,6.761,16,17.605,11,33.647,13,67.234
+-1.0,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.745,13.854,12.644,7,2.355,16,5.462,11,13.517,13,26.285
+-0.5,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.748,6.927,4.508,7,1.798,16,0.755,11,4.633,13,10.481
+0.0,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.754,0.0,0.304,7,2.041,16,0.0,11,0.0,13,0.0
+0.5,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.761,6.929,5.684,7,2.553,16,0.438,11,9.404,13,10.679
+1.0,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.764,13.861,15.505,7,4.008,16,3.168,11,22.643,13,30.839
+2.0,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.766,27.74,36.016,7,8.254,16,12.459,11,45.381,13,72.033
+3.0,data/kitti_mini,Car+Van+Truck,20,1,0.5,20,47,15.774,41.648,52.18,7,12.393,16,25.527,11,66.139,13,94.594
