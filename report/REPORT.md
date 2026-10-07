@@ -27,7 +27,23 @@ Bảng hoặc plot số liệu, kèm ảnh/video demo. Ghi rõ đường dẫn f
 |---|---|---|---|
 | Claude Code (Opus) | Viết 2 hàm `velo_to_cam` và `cam_to_image` trong `starter/projection.py`, chạy demo CP2 | Test điểm LiDAR `(10, 0, 0)` với calib `data/synthetic` frame `000000`: ra `z_cam = 9.73`, pixel `(614, 175)` đúng như CHECKPOINTS.md; test đầu vào có NaN/Inf/điểm sau camera không lỗi; xem bằng mắt 3 ảnh overlay, điểm khớp lên xe, người, cột, mặt đường | |
 
-![demo](../results/figures/[ĐIỀN].png)
+**Demo CP2 — điểm LiDAR chiếu lên camera, có vẽ 2D box của label (chưa perturb: roll/pitch/yaw = 0°, t = 0):**
+
+`data/synthetic`, frame `000000` — `results/figures/overlay_000000_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png`
+
+![demo synthetic 000000](../results/figures/overlay_000000_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png)
+
+`data/kitti_mini`, frame `000008` — `results/figures/overlay_000008_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png`
+
+![demo kitti 000008](../results/figures/overlay_000008_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png)
+
+`data/kitti_mini`, frame `000009` — `results/figures/overlay_000009_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png`
+
+![demo kitti 000009](../results/figures/overlay_000009_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png)
+
+`data/kitti_mini`, frame `000011` — `results/figures/overlay_000011_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png`
+
+![demo kitti 000011](../results/figures/overlay_000011_r0.0_p0.0_y0.0_t0.0_0.0_0.0.png)
 
 ## 3. Failure case
 
@@ -50,6 +66,8 @@ Các lệnh tái tạo lại toàn bộ kết quả từ repo sạch.
 ```bash
 # CP2: ảnh demo đầu tiên (điểm LiDAR chiếu lên camera + 2D box của label), lưu vào results/figures/
 python -m starter.projection --data-root data/synthetic --frame 000000
+python -m starter.projection --data-root data/kitti_mini --frame 000008
+python -m starter.projection --data-root data/kitti_mini --frame 000009
 python -m starter.projection --data-root data/kitti_mini --frame 000011
 python -m starter.projection --data-root data/nuscenes_mini_subset --frame scene-0103_010
 ```
