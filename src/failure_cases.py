@@ -27,13 +27,14 @@ IN_COLOR, OUT_COLOR = "#2a78d6", "#e34948"
 INK, MUTED, SURFACE = "#0b0b0b", "#52514e", "#fcfcfb"
 
 
-def draw_panel(ax, fr: dict, obj_idx: int, yaw: float, pad_px: int, title: str) -> float:
-    """Vẽ một ô và trả về % điểm của object rơi ngoài 2D box."""
+def draw_panel(ax, fr: dict, obj_idx: int, perturb: dict, pad_px: int, title: str) -> float:
+    """Vẽ một ô và trả về % điểm của object rơi ngoài 2D box.
+    perturb là tham số của perturb_extrinsic, ví dụ {"yaw_deg": 1.0}; {} là calib gốc."""
     obj = fr["labels"][obj_idx]
     pts = fr["points"][:, :3]
     pts = pts[np.isfinite(pts).all(axis=1)]
     idx = np.flatnonzero(points_in_box3d(velo_to_cam(pts, fr["calib"]), obj))
-    uv, _ = project_all(pts, perturb_extrinsic(fr["calib"], yaw_deg=yaw))
+    uv, _ = project_all(pts, perturb_extrinsic(fr["calib"], **perturb))
     uv = uv[idx]
     inside = in_bbox(uv, obj.bbox)
     out_pct = 100 * (1 - inside.mean())
@@ -76,7 +77,7 @@ def fail_near_car_missed(data_root: str, out_dir: Path) -> None:
     fig, axes = plt.subplots(2, 2, figsize=(9, 7), dpi=150, facecolor=SURFACE)
     for row, yaw in enumerate([0.0, 1.0]):
         for col, (obj_idx, pad, name) in enumerate(cases):
-            draw_panel(axes[row, col], fr, obj_idx, yaw, pad, f"Yaw {yaw:+.0f}° | {name}".replace("+0°", "0°"))
+            draw_panel(axes[row, col], fr, obj_idx, {"yaw_deg": yaw}, pad, f"Yaw {yaw:+.0f}° | {name}".replace("+0°", "0°"))
     finish(fig, "Frame 000008: lệch yaw +1° không làm xe gần mất điểm nào, metric bỏ sót",
            out_dir / "fail_01_yaw1deg_near_car_missed.png")
 
@@ -86,9 +87,20 @@ def fail_occluded_asymmetric(data_root: str, out_dir: Path) -> None:
     fr = load_frame(data_root, "000025")
     fig, axes = plt.subplots(1, 3, figsize=(10, 3.9), dpi=150, facecolor=SURFACE)
     for ax, yaw in zip(axes, [-1.0, 0.0, 1.0]):
-        draw_panel(ax, fr, 5, yaw, 25, f"Yaw {yaw:+.0f}°".replace("+0°", "0°"))
+        draw_panel(ax, fr, 5, {"yaw_deg": yaw}, 25, f"Yaw {yaw:+.0f}°".replace("+0°", "0°"))
     finish(fig, "Frame 000025, xe 22.3 m bị che một phần: −1° ra 0%, +1° ra 93%",
            out_dir / "fail_02_occluded_car_asymmetric.png")
+
+
+def fail_roll_undetected(data_root: str, out_dir: Path) -> None:
+    """Xe ở gần tâm ảnh: lệch roll 3° gần như không dịch điểm, alignment score vẫn 100%."""
+    fr = load_frame(data_root, "000049")
+    cases = [({}, "Calib gốc"), ({"roll_deg": 3.0}, "Roll +3°"), ({"yaw_deg": 3.0}, "Yaw +3°")]
+    fig, axes = plt.subplots(1, 3, figsize=(10, 3.9), dpi=150, facecolor=SURFACE)
+    for ax, (perturb, name) in zip(axes, cases):
+        draw_panel(ax, fr, 0, perturb, 25, name)
+    finish(fig, "Frame 000049, xe 21.6 m gần tâm ảnh: roll +3° không bị phát hiện, yaw +3° thì có",
+           out_dir / "fail_03_roll3deg_undetected.png")
 
 
 def main() -> None:
@@ -100,6 +112,7 @@ def main() -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     fail_near_car_missed(args.data_root, out_dir)
     fail_occluded_asymmetric(args.data_root, out_dir)
+    fail_roll_undetected(args.data_root, out_dir)
 
 
 if __name__ == "__main__":
