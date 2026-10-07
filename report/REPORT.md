@@ -1,4 +1,4 @@
-# Báo cáo Day 6: [ĐIỀN tên đề tài ngắn]
+# Báo cáo Day 6: Độ nhạy của phép chiếu LiDAR–camera với lệch yaw
 
 > Thay **mọi** ô có chữ ĐIỀN nằm trong ngoặc vuông bằng nội dung của bạn, xoá luôn cả dấu ngoặc vuông. Lệnh `python tools/check_submission.py` sẽ báo FAIL nếu còn sót bất kỳ chỗ nào.
 
@@ -90,7 +90,12 @@ Nêu khi nào hệ thống hoặc phương pháp fail, vì sao fail, và liên h
 
 Use-case cụ thể (ADAS / robot / drone), trade-off và bước tiếp theo.
 
-[ĐIỀN]
+- **Use-case:** ADAS trên ô tô dùng fusion LiDAR–camera, cần tự kiểm tra calibration khi đang chạy, vì bracket cảm biến có thể lệch sau va chạm nhẹ hoặc rung lâu ngày. Lệch yaw 1° đã làm xe từ 30 m mất 26–31% điểm LiDAR khỏi 2D box, tức là depth gán cho vật ở xa bị sai trước tiên.
+- **Trade-off về độ nhạy:** object ở xa nhạy với lệch (10.5% ngoài box ngay ở ±0.5°) nhưng ít điểm và ít gặp; object ở gần nhiều điểm nhưng gần như không phản ứng (dưới 5% ở ±1°). Giám sát cần chờ gom đủ object ở xa, nên phát hiện chậm hơn.
+- **Trade-off về an toàn:** ngưỡng cảnh báo thấp thì dễ báo nhầm vì một object bị che (failure 2 ra 92.6% chỉ với 27 điểm); ngưỡng cao thì bỏ sót lệch nhỏ. Nên cảnh báo theo trung bình nhiều object và nhiều frame, không theo một object.
+- **Giới hạn của bài này:** 2D box lấy từ label. Khi chạy thật box đến từ detector, sai số của detector sẽ cộng thêm vào metric; bài chưa đo phần này, cũng chưa đo thời gian chạy.
+- **Chỉ số nên ghi log khi chạy thật:** % điểm ngoài box theo từng nhóm khoảng cách, độ lệch ngang có dấu giữa tâm cụm điểm và tâm box, số object và số điểm dùng để tính, % điểm trong FOV, thời gian kể từ lần calibration gần nhất.
+- **Bước tiếp theo:** quét thêm pitch, roll và dịch tịnh tiến 2–10 cm; thay 2D box của label bằng box của detector; thử alignment score dựa trên cạnh ảnh (Canny) để không phụ thuộc vào box; xác định ngưỡng cảnh báo trên nhiều frame hơn.
 
 ## 5. Cách chạy lại
 
@@ -121,3 +126,4 @@ Ghi rõ đã dùng công cụ AI nào, dùng vào việc gì, và bạn đã t�
 | Claude Code (Opus) | Viết 2 hàm `velo_to_cam` và `cam_to_image` trong `starter/projection.py`, chạy demo CP2 | Test điểm LiDAR `(10, 0, 0)` với calib `data/synthetic` frame `000000`: ra `z_cam = 9.73`, pixel `(614, 175)` đúng như CHECKPOINTS.md; test đầu vào có NaN/Inf/điểm sau camera không lỗi; xem bằng mắt 3 ảnh overlay, điểm khớp lên xe, người, cột, mặt đường |
 | Claude Code (Opus) | Viết `src/yaw_sweep.py` (quét yaw, xuất CSV, vẽ biểu đồ), chạy thí nghiệm CP3 và điền bảng số liệu ở mục 2 | Chạy script hai lần, md5 của hai file CSV giống nhau; ở yaw 0° các nhóm từ 10 m trở lên đều ra 0% ngoài box; độ dịch pixel ở 1° ra khoảng 13–15 px, khớp với ước lượng `f · tan(1°) ≈ 721 × 0.0175 ≈ 12.6 px` ở giữa ảnh |
 | Claude Code (Opus) | Viết `src/failure_cases.py`, tìm và vẽ 2 failure case ở CP4, soạn mục 3 | Đối chiếu con số trên ảnh với `results/yaw_perturb_per_object.csv` (frame 8 object 1 và 4, frame 25 object 5); xem bằng mắt hai ảnh `fail_*.png`, điểm đỏ đúng là các điểm nằm ngoài khung trắng |
+| Claude Code (Opus) | Soạn nháp tên đề tài và mục 4 (khuyến nghị triển khai) ở CP5, chạy `tools/check_submission.py` | Đối chiếu từng con số trong mục 4 với bảng ở mục 2 và mục 3; kết quả kiểm tra hình thức ra `SẴN SÀNG NỘP` |
