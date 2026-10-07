@@ -6,9 +6,9 @@
 - **MSSV:** 2A202602803
 - **Lớp:** AI20K-T4
 - **Link repo:** https://github.com/DAQuan-VinAI/DoanAnhQuan-2A202602803-Track4-Day21
-- **Topic:** [ĐIỀN một chữ cái A/B/C/D/E/F] — [ĐIỀN tên topic]
-- **Dataset:** [ĐIỀN một hoặc nhiều trong: data/synthetic, data/kitti_mini, data/nuscenes_mini_subset, log riêng]
-- **Các frame đã dùng:** [ĐIỀN danh sách frame id, ví dụ 000011, 000049 hoặc scene-0103_010]
+- **Topic:** A — LiDAR - camera projection QA
+- **Dataset:**  data/synthetic, data/kitti_mini
+- **Các frame đã dùng:**  000004, 000008, 000009, 000011, 000012, 000025, 000043
 
 > Hãy viết ngắn: mỗi mục từ 3 đến 8 dòng, ưu tiên số liệu và hình ảnh.
 
@@ -16,7 +16,8 @@
 
 Một câu khẳng định kỹ thuật có thể kiểm chứng. Ví dụ: *"Lệch yaw 1° làm 12% điểm LiDAR rơi ra khỏi vật thể ở 30 m, phát hiện được bằng edge-alignment score với ngưỡng X."*
 
-[ĐIỀN]
+Lệch yaw 1° làm điểm chiếu dịch khoảng 12–13 px gần như không phụ thuộc khoảng cách, nên tỉ lệ điểm LiDAR rơi ra ngoài 2D box tăng theo khoảng cách: dưới 10% với xe ở gần hơn 10 m, nhưng trên 30% với xe ở 30 m trở lên.
+
 
 ## 2. Evidence
 
