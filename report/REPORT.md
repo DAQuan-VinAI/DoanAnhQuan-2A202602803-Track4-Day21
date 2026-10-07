@@ -69,9 +69,22 @@ Bảng hoặc plot số liệu, kèm ảnh/video demo. Ghi rõ đường dẫn f
 
 Nêu khi nào hệ thống hoặc phương pháp fail, vì sao fail, và liên hệ tới lớp nào trong 6 lớp debug: I/O, Geometry, Time, Preprocess, Model, Metric.
 
-![failure](../results/figures/fail_[ĐIỀN].png)
+**Failure 1: metric bỏ sót lệch yaw trên xe ở gần** — `results/figures/fail_01_yaw1deg_near_car_missed.png`
 
-[ĐIỀN]
+![failure 1](../results/figures/fail_01_yaw1deg_near_car_missed.png)
+
+- **Khi nào sai:** frame 000008, lệch yaw +1°. Xe ở 7.9 m vẫn ra 0.0% điểm ngoài box, giống hệt lúc chưa lệch, và chỉ lên 0.6% ở +2°. Trong cùng frame, xe ở 33.2 m ra 24.5%.
+- **Vì sao sai:** lệch 1° chỉ dịch điểm khoảng 14 px. Box của xe gần rộng 290 px và điểm LiDAR cách mép trái box 21 px, nên dịch 14 px vẫn nằm trọn trong box. Box của xe xa chỉ rộng 51 px nên cùng độ dịch đó đã đẩy một phần tư số điểm ra ngoài.
+- **Lớp debug:** lỗi thật nằm ở **Geometry** (extrinsic sai), nhưng không phát hiện được là do lớp **Metric**: "% điểm ngoài box" đo việc điểm có vượt mép box hay không, chứ không đo độ lệch pixel, nên độ nhạy phụ thuộc bề rộng box.
+
+**Failure 2: cùng độ lớn lệch, hai chiều cho hai kết quả trái ngược** — `results/figures/fail_02_occluded_car_asymmetric.png`
+
+![failure 2](../results/figures/fail_02_occluded_car_asymmetric.png)
+
+- **Khi nào sai:** frame 000025, xe ở 22.3 m, label ghi occluded = 1, chỉ có 27 điểm LiDAR. Lệch −1° ra 0% ngoài box, lệch +1° ra 92.6%.
+- **Vì sao sai:** 27 điểm chỉ trải ngang 14 px và nằm sát mép trái của box rộng 59 px. Lệch +1° đẩy điểm sang trái, ra khỏi box gần hết; lệch −1° đẩy sang phải, vào giữa box. Lớp debug: **Metric**, vì con số phụ thuộc vị trí điểm trong box và chiều lệch, không chỉ phụ thuộc độ lớn lệch.
+
+**Cách phát hiện khi chạy thật (đề xuất, chưa thử nghiệm trong bài này):** chỉ tính metric trên object có box hẹp (ở bảng mục 2, nhóm từ 30 m đã ra 10.5% ngay ở ±0.5°); lấy trung bình trên nhiều object và nhiều frame thay vì tin một object; và đo thêm độ lệch ngang có dấu giữa tâm cụm điểm và tâm box để biết cả chiều lệch.
 
 ## 4. Khuyến nghị nếu triển khai thật
 
@@ -94,6 +107,9 @@ python -m starter.projection --data-root data/nuscenes_mini_subset --frame scene
 # CP3: quét lệch yaw -3° đến +3° trên 20 frame kitti_mini.
 # Tạo results/yaw_perturb_sweep.csv, results/yaw_perturb_per_object.csv, results/figures/yaw_perturb_sweep.png
 python -m src.yaw_sweep
+
+# CP4: vẽ 2 ảnh failure case vào results/figures/fail_01_*.png và fail_02_*.png
+python -m src.failure_cases
 ```
 
 ## 6. Khai báo sử dụng AI
@@ -104,3 +120,4 @@ Ghi rõ đã dùng công cụ AI nào, dùng vào việc gì, và bạn đã t�
 |---|---|---|
 | Claude Code (Opus) | Viết 2 hàm `velo_to_cam` và `cam_to_image` trong `starter/projection.py`, chạy demo CP2 | Test điểm LiDAR `(10, 0, 0)` với calib `data/synthetic` frame `000000`: ra `z_cam = 9.73`, pixel `(614, 175)` đúng như CHECKPOINTS.md; test đầu vào có NaN/Inf/điểm sau camera không lỗi; xem bằng mắt 3 ảnh overlay, điểm khớp lên xe, người, cột, mặt đường |
 | Claude Code (Opus) | Viết `src/yaw_sweep.py` (quét yaw, xuất CSV, vẽ biểu đồ), chạy thí nghiệm CP3 và điền bảng số liệu ở mục 2 | Chạy script hai lần, md5 của hai file CSV giống nhau; ở yaw 0° các nhóm từ 10 m trở lên đều ra 0% ngoài box; độ dịch pixel ở 1° ra khoảng 13–15 px, khớp với ước lượng `f · tan(1°) ≈ 721 × 0.0175 ≈ 12.6 px` ở giữa ảnh |
+| Claude Code (Opus) | Viết `src/failure_cases.py`, tìm và vẽ 2 failure case ở CP4, soạn mục 3 | Đối chiếu con số trên ảnh với `results/yaw_perturb_per_object.csv` (frame 8 object 1 và 4, frame 25 object 5); xem bằng mắt hai ảnh `fail_*.png`, điểm đỏ đúng là các điểm nằm ngoài khung trắng |
